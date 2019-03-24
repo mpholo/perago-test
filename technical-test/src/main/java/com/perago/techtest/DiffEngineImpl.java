@@ -49,10 +49,12 @@ public class DiffEngineImpl implements DiffEngine {
 		return null;
 	}
 
+	
 	private List<Field> extractProperies(Object obj) {
 
 		Object value = null;
 		List<Field> fields = new ArrayList<>();
+		
 
 		try {
 			Class<? extends Object> objClass = obj.getClass();
@@ -67,11 +69,7 @@ public class DiffEngineImpl implements DiffEngine {
 					if (value != null && (objClass.isPrimitive()
 							|| objMethod.getGenericReturnType().getTypeName() == "java.lang.String")) {
 						fields.add(new Field(fieldName, value.toString()));
-					} else if (value != null) {
-						extractProperies(obj);
-
-					}
-
+					} 
 				}
 			}
 
@@ -133,8 +131,9 @@ public class DiffEngineImpl implements DiffEngine {
                                 	allFields=allFields.substring(0, allFields.length()-1);
                                 	diff.addFields(new Field(fieldName,allFields));
                                 } else {
-            					modifiedValues.add(modifiedValue);
-								objectName.add(fieldName);
+            					  modifiedValues.add(modifiedValue);
+								  objectName.add(modifiedValue.getClass().getSimpleName());
+								 
                                 }
 								
 							}
@@ -199,23 +198,12 @@ public class DiffEngineImpl implements DiffEngine {
 
 			}
 
-			for (int i = 0; i < modifiedValues.size(); i++) {
 
-				Object objValue = modifiedValues.get(i);
-
-				List<Field> fields = extractProperies(objValue);
-
-				Diff<T> relatedDiff = new Diff<T>();
-				for (Field f : fields) {
-
-					relatedDiff.addFields(new Field(f.getFieldName(), f.getFieldValue()));
-					relatedDiff.setObjectName(objectName.get(i));
-					relatedDiff.setOperation(diff.getOperation());
-
-				}
-				diff.addDiff(relatedDiff);	
-
-			}
+			
+			relatedDiff(modifiedValues,
+                    objectName,diff); 
+		
+				
 			
 
 		} catch (IllegalArgumentException e) {
@@ -228,5 +216,32 @@ public class DiffEngineImpl implements DiffEngine {
 
 		return diff;
 	}
+	
+	
+	private <T extends Serializable> Diff<T> relatedDiff(List<Object> modifiedValues,
+			                                             List<String> objectName,Diff<T> diff  ) {
+		for (int i = 0; i < modifiedValues.size(); i++) {
+
+			Object objValue = modifiedValues.get(i);
+
+			List<Field> fields = extractProperies(objValue);
+
+			Diff<T> relatedDiff = new Diff<T>();
+			for (Field f : fields) {
+
+				relatedDiff.addFields(new Field(f.getFieldName(), f.getFieldValue()));
+				relatedDiff.setObjectName(objectName.get(i));
+				relatedDiff.setOperation(diff.getOperation());
+
+			}
+			diff.addDiff(relatedDiff);	
+
+		}
+		
+	
+		return diff;
+		
+	}
+	
 
 }

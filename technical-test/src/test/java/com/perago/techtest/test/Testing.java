@@ -81,10 +81,12 @@ public class Testing implements DiffRenderer{
 		friend.setSurname("Modise");
 		person.setFriend(friend);
 		
+		
 		Set<String> nickNames = new HashSet<String>();
 		nickNames.add("Daddy");
 		nickNames.add("JayJay");
 		nickNames.add("MyGuy");
+		
 		person.setNickNames(nickNames);
 	    
 	    
